@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { db } from "../db/index.js";
 import { users } from "../db/schema.js";
 import { eq } from "drizzle-orm";
+import config from "./index.js";
 
 passport.serializeUser((user: any, done) => {
   done(null, user.id);
@@ -29,8 +30,8 @@ passport.deserializeUser(async (id: number, done) => {
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientID: config.googleClientId!,
+      clientSecret: config.googleClientSecret!,
       callbackURL: "/api/auth/google/callback",
       proxy: true,
     },

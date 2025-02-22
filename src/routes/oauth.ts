@@ -4,6 +4,7 @@ import passport from "passport";
 import { setUserSession } from "../utils/session.js";
 import { rateLimiter } from "../middleware/rte-limiter.js";
 import { URL } from "url";
+import config from "../config/index.js";
 
 const router = express.Router();
 
@@ -20,8 +21,7 @@ function isValidRedirectUrl(redirectUrl: string | undefined): boolean {
     }
 
     // For absolute URLs, check against allowed domains if configured
-    const allowedDomains =
-      process.env.ALLOWED_REDIRECT_DOMAINS?.split(",") || [];
+    const allowedDomains = config.allowedRedirectDomains;
     if (allowedDomains.length === 0) {
       return false; // Don't allow absolute URLs if no domains are explicitly allowed
     }
@@ -35,9 +35,8 @@ function isValidRedirectUrl(redirectUrl: string | undefined): boolean {
 
 // Helper to get safe redirect URLs
 function getRedirectUrls(req: express.Request) {
-  const defaultSuccessRedirect =
-    process.env.OAUTH_SUCCESS_REDIRECT || "/api/auth/me";
-  const defaultFailureRedirect = process.env.OAUTH_FAILURE_REDIRECT || "/login";
+  const defaultSuccessRedirect = config.oauthSuccessRedirect;
+  const defaultFailureRedirect = config.oauthFailureRedirect;
 
   const requestedRedirect = req.query.redirect_to as string | undefined;
 

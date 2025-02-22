@@ -1,3 +1,11 @@
+import { Request, Response, NextFunction } from "express";
+
+export interface ErrorResponse {
+  status: "error";
+  code?: string;
+  message: string;
+}
+
 export class AppError extends Error {
   constructor(
     public statusCode: number,
@@ -7,31 +15,13 @@ export class AppError extends Error {
     super(message);
     Object.setPrototypeOf(this, AppError.prototype);
   }
-}
 
-// Error handler middleware
-import { Request, Response, NextFunction } from "express";
-
-export const errorHandler = (
-  err: Error | AppError,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
-      status: "error",
-      code: err.code,
-      message: err.message,
-    });
+  log() {
+    console.error(
+      `Error: ${this.statusCode} - ${this.message} - ${this.code || "No Code"}`,
+    );
   }
-
-  console.error("Unhandled error:", err);
-  return res.status(500).json({
-    status: "error",
-    message: "Internal server error",
-  });
-};
+}
 
 export class SessionExpiredError extends Error {
   constructor(message: string) {

@@ -1,16 +1,26 @@
 import { Request, Response, NextFunction } from "express";
-import { SessionExpiredError } from "../utils/errors.js";
+import { AppError, ErrorResponse } from "../utils/errors.js";
 
 export function errorHandler(
-  err: Error,
+  err: Error | AppError,
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  if (err instanceof SessionExpiredError) {
-    return res.status(440).json({ error: "Session has expired" });
+  if (err instanceof AppError) {
+    err.log(); // Centralized logging
+    const response: ErrorResponse = {
+      status: "error",
+      message: err.message,
+      code: err.code,
+    };
+    return res.status(err.statusCode).json(response);
   }
 
-  console.error(err);
-  res.status(500).json({ error: "Internal server error" });
+  console.error("Unhandled error:", err);
+  const response: ErrorResponse = {
+    status: "error",
+    message: "Internal server error",
+  };
+  return res.status(500).json(response);
 }
