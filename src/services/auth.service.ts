@@ -23,6 +23,13 @@ interface UserLoginData {
   password: string;
 }
 
+interface GoogleOAuthData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  googleId: string;
+}
+
 export async function registerUser(userData: UserRegisterData) {
   const existingUser = await db
     .select()
@@ -77,6 +84,45 @@ export async function loginUser(credentials: UserLoginData) {
     firstName: user.firstName,
     lastName: user.lastName,
   };
+}
+
+export async function getUserByGoogleId(googleId: string) {
+  const [user] = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+    })
+    .from(users)
+    .where(eq(users.googleId, googleId));
+
+  return user;
+}
+
+export async function findOrCreateUserFromGoogle(userData: GoogleOAuthData) {
+  let user = await getUserByGoogleId(userData.googleId);
+
+  if (!user) {
+    // User doesn't exist, create a new user
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        googleId: userData.googleId,
+      })
+      .returning({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+      });
+    user = newUser;
+  }
+
+  return user;
 }
 
 export async function getUserById(userId: number) {

@@ -3,6 +3,7 @@ node_modules/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+drizzle
 
 # Build outputs
 dist/
@@ -53,3 +54,4 @@ migrations/.previous/
 # Operating System
 .DS_Store
 Thumbs.db
+.aider*
