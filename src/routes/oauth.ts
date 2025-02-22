@@ -89,10 +89,7 @@ router.get(
       // Set up user session
       await setUserSession(
         req,
-        {
-          id: (req.user as any).id,
-          email: (req.user as any).email,
-        },
+        (req.user as any).id,
         "google",
       );
 
