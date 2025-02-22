@@ -53,11 +53,11 @@ function getRedirectUrls(req: express.Request) {
 router.get(
   "/google",
   rateLimiter,
-  (req, res, next) => {
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const { successRedirect } = getRedirectUrls(req);
 
     // Store the intended redirect URL in session
-    req.session.oauth = {
+    (req.session as any).oauth = {
       returnTo: successRedirect,
     };
     next();
@@ -71,7 +71,7 @@ router.get(
 router.get(
   "/google/callback",
   rateLimiter,
-  (req, res, next) => {
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const { failureRedirect } = getRedirectUrls(req);
 
     passport.authenticate("google", {
@@ -79,7 +79,7 @@ router.get(
       failureMessage: true,
     })(req, res, next);
   },
-  async (req, res) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       if (!req.user) {
         const { failureRedirect } = getRedirectUrls(req);
@@ -94,15 +94,15 @@ router.get(
       });
 
       // Get the stored redirect URL or use default
-      const storedRedirect = req.session.oauth?.returnTo;
+      const storedRedirect = (req.session as any).oauth?.returnTo;
       const { successRedirect } = getRedirectUrls(req);
       const redirectUrl = isValidRedirectUrl(storedRedirect)
         ? storedRedirect
         : successRedirect;
 
       // Clean up the stored OAuth data
-      if (req.session.oauth) {
-        delete req.session.oauth;
+      if ((req.session as any).oauth) {
+        delete (req.session as any).oauth;
       }
 
       // Redirect to the appropriate URL
