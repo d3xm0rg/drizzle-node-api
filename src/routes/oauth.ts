@@ -87,11 +87,14 @@ router.get(
       }
 
       // Set up user session
-      await setUserSession(req, {
-        id: req.user.id,
-        email: req.user.email,
-        provider: "google",
-      });
+      await setUserSession(
+        req,
+        {
+          id: (req.user as any).id,
+          email: (req.user as any).email,
+        },
+        "google",
+      );
 
       // Get the stored redirect URL or use default
       const storedRedirect = (req.session as any).oauth?.returnTo;
